@@ -44,9 +44,9 @@ def handle_client(conn, addr):
     while True:
         try:
             message = conn.recv(1024).decode('utf-8')
-            if message.startswith("\update"):
+            if message.startswith("$update"):
                 send_online_users(username)
-            if message.startswith("\exit"):
+            if message.startswith("$exit"):
                 break
         except:
             break
