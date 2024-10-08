@@ -18,8 +18,10 @@ def main():
     except:
         return print('\nNão foi possível se conectar com o servidor!\n')
 
-    username = input('Nome de usuário ¬> ')
-    client.send(username.encode('utf-8'))  # Envia o nome de usuário ao servidor
+    username = input('Nome de usuário: ')
+    user_ip = input('Seu IP: ')
+    
+    client.send(f'{username},{user_ip}'.encode('utf-8'))  # Envia o nome de usuário e o IP ao servidor
     print('\nConectado!')
 
     # Iniciar threads para receber mensagens
@@ -49,8 +51,15 @@ def send_messages(client, username):
             sys.stdout.write(f'\n<{username}> ')  # Exibe o prompt do usuário antes de capturar a entrada
             sys.stdout.flush()
             msg = input()  # Captura a mensagem que o usuário deseja enviar
-            client.send(msg.encode('utf-8'))
+            
+            # Se o usuário desejar enviar uma mensagem privada
+            if msg.startswith("@"):
+                client.send(msg.encode('utf-8'))
+            else:
+                client.send(msg.encode('utf-8'))
+                
         except:
+            print('Erro ao enviar mensagem.')
             return
 
 # Inicia o cliente:
