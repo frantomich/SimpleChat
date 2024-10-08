@@ -1,60 +1,67 @@
 import socket #Biblioteca para comunicação em rede.
-import threading #Biblioteca para gerenciamento de threads.
-import subprocess #Biblioteca para execução de comandos do sistema.
+import threading #Biblioteca para criação e manipulação de threads.
+import sys #Biblioteca para manipulação de sistema.
 
 HOST = '127.0.0.1' #Endereço IP do servidor.
-PORT = 65432 #Porta de comunicação do servidor.
-
-online_users = dict() #Armazena os nomes de usuário e endereços IP dos clientes.
+PORT = 8080 #Porta padrão do servidor.
+IP_TYPE = socket.AF_INET #Para endereços IPv4.
+SOCK_TYPE = socket.SOCK_STREAM #Para conexão TCP. 
 
 def main():
 
-    """Inicia o cliente e estabelece a conexão com o servidor."""
+    """Realiza a conexão com o servidor e inicia as threads para enviar e receber mensagens."""
+    
+    client = socket.socket(IP_TYPE, SOCK_TYPE)
 
-    client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
         client.connect((HOST, PORT))
-        print(f"Conectado ao servidor {HOST}:{PORT}")
-        username = input("Digite o seu nome de usuário: ")
-        client.send(username.encode('utf-8'))
-        print(client.recv(1024).decode('utf-8'))
     except:
-        print("Não foi possível estabelecer conexão com o servidor!")
-        exit()
-    else:
-        threading.Thread(target=receive_messages_from_server, args=(client,), daemon=True).start()
-        send_messages_to_server(client)
-    finally:
-        client.close()
-        exit()
+        return print('\nNão foi possível se conectar com o servidor!\n')
 
-def receive_messages_from_server(client):
+    username = input('Nome de usuário: ')
+    user_ip = input('Seu IP: ')
     
-        """Recebe mensagens do servidor."""
-    
-        while True:
-            try:
-                message = client.recv(1024).decode('utf-8')
-                if message[0] == "$":
-                    online_users = dict(eval(message[1:]))
-                    print(f"Usuários online: {', '.join(online_users.keys())}")
-                else:
-                    print(message)
-            except:
-                break
+    client.send(f'{username},{user_ip}'.encode('utf-8'))  # Envia o nome de usuário e o IP ao servidor
+    print('\nConectado!')
 
-def send_messages_to_server(client):
+    # Iniciar threads para receber mensagens
+    threading.Thread(target=receive_messages, args=[client, username], daemon=True).start()
     
-        """Envia mensagens para o servidor."""
-    
-        while True:
-            message = input("Comando: ")
-            if message[0] == "@": 
-                """ao digitar @usuário, deverá abrir um novo terminal para conversa privada com o usuário especificado."""
-                pass
-            client.send(message.encode('utf-8'))
-            if message == "exit":
-                break
+    # Iniciar o envio de mensagens
+    send_messages(client, username)
 
-if __name__ == '__main__':
+def receive_messages(client, username):
+    """Função para receber mensagens do servidor."""
+    while True:
+        try:
+            msg = client.recv(2048).decode('utf-8')
+            sys.stdout.write(f'\r{msg}\n')  # Exibe a mensagem recebida
+            sys.stdout.write(f'\n<{username}> ')  # Exibe o prompt do usuário
+            sys.stdout.flush()
+        except:
+            print('\nNão foi possível permanecer conectado ao servidor!\n')
+            print('\nPressione [Enter] para continuar...\n')
+            client.close()
+            break
+
+def send_messages(client, username):
+    """Função para enviar mensagens ao servidor."""
+    while True:
+        try:
+            sys.stdout.write(f'\n<{username}> ')  # Exibe o prompt do usuário antes de capturar a entrada
+            sys.stdout.flush()
+            msg = input()  # Captura a mensagem que o usuário deseja enviar
+            
+            # Se o usuário desejar enviar uma mensagem privada
+            if msg.startswith("@"):
+                client.send(msg.encode('utf-8'))
+            else:
+                client.send(msg.encode('utf-8'))
+                
+        except:
+            print('Erro ao enviar mensagem.')
+            return
+
+# Inicia o cliente:
+if __name__ == "__main__":
     main()
