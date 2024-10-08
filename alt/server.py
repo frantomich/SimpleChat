@@ -11,8 +11,8 @@ def main():
 
     """Inicia o servidor e aguarda a conexão de clientes."""
 
+    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
-        server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         server.bind((HOST, PORT))
         server.listen()
         print(f"Servidor escutando em {HOST}:{PORT}")

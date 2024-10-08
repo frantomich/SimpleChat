@@ -1,5 +1,6 @@
 import socket #Biblioteca para comunicação em rede.
 import threading #Biblioteca para gerenciamento de threads.
+import subprocess #Biblioteca para execução de comandos do sistema.
 
 HOST = '127.0.0.1' #Endereço IP do servidor.
 PORT = 65432 #Porta de comunicação do servidor.
@@ -10,8 +11,8 @@ def main():
 
     """Inicia o cliente e estabelece a conexão com o servidor."""
 
+    client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
-        client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         client.connect((HOST, PORT))
         print(f"Conectado ao servidor {HOST}:{PORT}")
         username = input("Digite o seu nome de usuário: ")
@@ -21,13 +22,13 @@ def main():
         print("Não foi possível estabelecer conexão com o servidor!")
         exit()
     else:
-        threading.Thread(target=receive_messages, args=(client,), daemon=True).start()
-        send_messages(client)
+        threading.Thread(target=receive_messages_from_server, args=(client,), daemon=True).start()
+        send_messages_to_server(client)
     finally:
         client.close()
         exit()
 
-def receive_messages(client):
+def receive_messages_from_server(client):
     
         """Recebe mensagens do servidor."""
     
@@ -42,7 +43,7 @@ def receive_messages(client):
             except:
                 break
 
-def send_messages(client):
+def send_messages_to_server(client):
     
         """Envia mensagens para o servidor."""
     
