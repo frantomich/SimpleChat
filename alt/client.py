@@ -35,8 +35,8 @@ def receive_messages_from_server(client):
         while True:
             try:
                 message = client.recv(1024).decode('utf-8')
-                if message[0] == "$":
-                    online_users = dict(eval(message[1:]))
+                if message.startswith("<online_users>"):
+                    online_users = dict(eval(message.replace("<online_users>", "")))
                     print(f"Usuários online: {', '.join(online_users.keys())}")
                 else:
                     print(message)
@@ -48,8 +48,8 @@ def send_messages_to_server(client):
         """Envia mensagens para o servidor."""
     
         while True:
-            message = input("Comando: ")
-            if message[0] == "@": 
+            message = input("¬>")
+            if message.startswith("@"): 
                 """ao digitar @usuário, deverá abrir um novo terminal para conversa privada com o usuário especificado."""
                 pass
             client.send(message.encode('utf-8'))

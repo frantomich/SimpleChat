@@ -44,9 +44,9 @@ def handle_client(conn, addr):
     while True:
         try:
             message = conn.recv(1024).decode('utf-8')
-            if message == "update":
+            if message.startswith("\update"):
                 send_online_users(username)
-            if message == "exit":
+            if message.startswith("\exit"):
                 break
         except:
             break
@@ -61,7 +61,7 @@ def send_online_users(username):
 
     online_users = clients.copy()
     del online_users[username]
-    connections[username].send(f"${str(online_users)}".encode('utf-8'))
+    connections[username].send(f"<online_users>{str(online_users)}".encode('utf-8'))
 
 if __name__ == "__main__":
     main()
