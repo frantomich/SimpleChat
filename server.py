@@ -60,10 +60,12 @@ def handle_client(conn, addr):
         if message.startswith("$update"):
             send_online_users(username)
         if message.startswith("$exit"):
+            for c in connections.values():
+                c.send(f"<offline>{username}".encode('utf-8'))
             break
     print(f"Usuário {username} desconectado!")
     del clients[username]
-    del clients[username]
+    del connections[username]
     conn.close()
     for cli in clients:
         send_online_users(cli)
