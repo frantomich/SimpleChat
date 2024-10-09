@@ -4,7 +4,7 @@ import threading #Biblioteca para gerenciamento de threads.
 SERVER_IP = '127.0.0.1' #Endereço IP do servidor.
 SERVER_PORT = 65432 #Porta de comunicação do servidor.
 
-CLIENT_IP = '127.0.0.1' #socket.gethostbyname(socket.gethostname()) #Endereço IP do cliente.
+CLIENT_IP = '127.0.0.1' #Endereço IP do cliente.
 CLIENT_PORT = 65433 #Porta de comunicação do cliente.
 
 client_username = str() #Armazena o nome de usuário do cliente.
@@ -70,7 +70,7 @@ def connect_to_guest(username):
         message = guest.recv(1024).decode('utf-8')
         if message.startswith("<erro>"):
             return False
-        print(f"{username} conectado!")
+        print(f"Usuário(a) {username} conectado(a)!")
         online_connections[username] = guest
     except:
             guest.close()
@@ -125,15 +125,24 @@ def receive_messages_from_server():
         global client_connection, online_users
     
         while True:
-            message = client_connection.recv(1024).decode('utf-8')
-            if message.startswith("<online_users>"):
-                online_users = dict(eval(message.replace("<online_users>", "")))
-                if len(online_users) > 0:
-                    print(f"Usuários online: {', '.join(online_users.keys())}")
+            try:
+                message = client_connection.recv(1024).decode('utf-8')
+                if message.startswith("<online_users>"):
+                    online_users = dict(eval(message.replace("<online_users>", "")))
+                    if len(online_users) > 0:
+                        print(f"Usuários online: {', '.join(online_users.keys())}")
+                    else:
+                        print("Nenhum outro usuário online!")
+                elif message.startswith("<offline>"):
+                    username = message.replace("<offline>", "")
+                    if username in online_connections:
+                        online_connections[username].close()
+                        del online_connections[username]
+                    print(f"Usuário(a) {username} desconectado(a)!")
                 else:
-                    print("Nenhum outro usuário online!")
-            else:
-                print(message)
+                    print(message)
+            except:
+                break
 
 def receive_messages_from_guest(username):
         
@@ -142,9 +151,12 @@ def receive_messages_from_guest(username):
         """Recebe mensagens de outros clientes."""
     
         while True:
-            message = online_connections[username].recv(1024).decode('utf-8')
-            if message:
-                print(f"<{username}>: {message}\n")
+            try:
+                message = online_connections[username].recv(1024).decode('utf-8')
+                if message:
+                    print(f"<{username}>: {message}\n")
+            except:
+                break
 
 def send_messages():
     
