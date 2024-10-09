@@ -4,7 +4,7 @@ import threading #Biblioteca para gerenciamento de threads.
 HOST = '127.0.0.1' #Endereço IP do servidor.
 PORT = 65432 #Porta de comunicação do servidor.
 
-clients = dict() #Armazena os nomes de usuário e endereços IP dos clientes.
+clients = dict() #Armazena os endereços IP dos clientes.
 connections = dict() #Armazena as conexões com os clientes.
 
 def main():
@@ -32,12 +32,16 @@ def handle_client(conn, addr):
     """Estabelece a conexão com o cliente."""
 
     try:
-        username = conn.recv(1024).decode('utf-8')
-        clients[username] = addr
+        message = conn.recv(1024).decode('utf-8')
+        if message.startswith("<client>"):
+            message = message.replace("<client>", "")
+            message = message.split(":")
+            print(message)
+            username = message[0]
+        clients[username] = (message[1], int(message[2]))
         connections[username] = conn
         print(f"Conexão estabelecida com @{username} ¬> {addr[0]}:{addr[1]}")
-        conn.send("Conexão estabelecida com sucesso!".encode('utf-8'))
-        send_online_users(username)
+        conn.send(f"<info>Conexão com o servidor estabelecida com sucesso!".encode('utf-8'))
     except:
         print("Erro ao estabelecer conexão com o cliente!")
         conn.close()
@@ -45,7 +49,9 @@ def handle_client(conn, addr):
         try:
             message = conn.recv(1024).decode('utf-8')
             if message.startswith("$update"):
-                send_online_users(username)
+                online_users = clients.copy()
+                del online_users[username]
+                connections[username].send(f"<online_users>{str(online_users)}".encode('utf-8'))
             if message.startswith("$exit"):
                 break
         except:
@@ -54,14 +60,6 @@ def handle_client(conn, addr):
     del clients[username]
     del connections[username]
     conn.close()
-
-def send_online_users(username):
-
-    """Envia a lista de usuários online para o cliente."""
-
-    online_users = clients.copy()
-    del online_users[username]
-    connections[username].send(f"<online_users>{str(online_users)}".encode('utf-8'))
 
 if __name__ == "__main__":
     main()
