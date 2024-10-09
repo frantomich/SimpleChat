@@ -132,8 +132,6 @@ def receive_messages_from_server():
                     print(f"Usuários online: {', '.join(online_users.keys())}")
                 else:
                     print("Nenhum outro usuário online!")
-            elif message.startswith("<exit>"):
-                break
             else:
                 print(message)
 
@@ -155,6 +153,7 @@ def send_messages():
     global client_connection, online_connections
 
     while True:
+        #message = input("¬> ")
         message = input("")
         if message.startswith("$"):
             client_connection.send(message.encode('utf-8'))
