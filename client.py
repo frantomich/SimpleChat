@@ -1,6 +1,6 @@
 import socket #Biblioteca para comunicação em rede.
-import netifaces #Biblioteca para obtenção de informações de interfaces de rede.
 import threading #Biblioteca para gerenciamento de threads.
+#import netifaces #Biblioteca para obtenção de informações de interfaces de rede.
 
 SERVER_IP = '127.0.0.1' #Endereço IP do servidor.
 SERVER_PORT = 2000 #Porta de comunicação do servidor.
@@ -203,6 +203,8 @@ def send_messages():
                 online_connections[username].send(message.encode('utf-8'))
             else:
                 print(f"\nNão foi possível conectar-se com o usuário {username}!\n")
+        else:
+            print("Comando inválido!\n")
 
 if __name__ == '__main__':
     main()

@@ -1,6 +1,6 @@
 import socket #Biblioteca para comunicação em rede.
-import netifaces #Biblioteca para obter informações de rede.
 import threading #Biblioteca para gerenciamento de threads.
+#import netifaces #Biblioteca para obter informações de rede.
 
 SERVER_IP = '127.0.0.1' #Endereço IP padrão do servidor.
 SERVER_PORT = 2000 #Porta de comunicação padrão do servidor.
