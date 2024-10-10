@@ -3,10 +3,10 @@ import netifaces #Biblioteca para obtenção de informações de interfaces de r
 import threading #Biblioteca para gerenciamento de threads.
 
 SERVER_IP = '127.0.0.1' #Endereço IP do servidor.
-SERVER_PORT = 65432 #Porta de comunicação do servidor.
+SERVER_PORT = 2000 #Porta de comunicação do servidor.
 
 CLIENT_IP = '127.0.0.1' #Endereço IP do cliente.
-CLIENT_PORT = 65433 #Porta de comunicação do cliente.
+CLIENT_PORT = 2001 #Porta de comunicação do cliente.
 
 client_username = str() #Armazena o nome de usuário do cliente.
 

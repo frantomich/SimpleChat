@@ -3,7 +3,7 @@ import netifaces #Biblioteca para obter informações de rede.
 import threading #Biblioteca para gerenciamento de threads.
 
 SERVER_IP = '127.0.0.1' #Endereço IP padrão do servidor.
-SERVER_PORT = 65432 #Porta de comunicação padrão do servidor.
+SERVER_PORT = 2000 #Porta de comunicação padrão do servidor.
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM) #Define o tipo de conexão usada pelo servidor (IPv4, TCP).
 clients = dict() #Armazena o endereço IP e porta dos clientes.
