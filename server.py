@@ -13,9 +13,9 @@ def main():
 
     """Função principal do servidor."""
 
-    global SERVER_IP
+    #global SERVER_IP
 
-    SERVER_IP = get_ip()
+    #SERVER_IP = get_ip()
 
     srv = threading.Thread(target=init_server, daemon=True)
     srv.start()
@@ -26,23 +26,23 @@ def main():
     cmd.join()
     exit(0)
 
-def get_ip():
+# def get_ip():
     
-        """Obtém o endereço IP do servidor a partir da interface de rede selecionada."""
-    
-        interfaces = netifaces.interfaces()
-        print("\nSelecione a interface de rede onde o servidor irá operar:\n")
-        for i, interface in enumerate(interfaces):
-            print(f"\t{i} - {interface}")
-        while True:
-            try:
-                index = int(input("\nSelecione a interface de rede: "))
-                interface = interfaces[index]
-                ip = netifaces.ifaddresses(interface)[netifaces.AF_INET][0]['addr']
-            except:
-                print("\nInterface inválida ou indisponível!")
-            else:
-                return ip
+#     """Obtém o endereço IP do servidor a partir da interface de rede selecionada."""
+
+#     interfaces = netifaces.interfaces()
+#     print("\nSelecione a interface de rede onde o servidor irá operar:\n")
+#     for i, interface in enumerate(interfaces):
+#         print(f"\t{i} - {interface}")
+#     while True:
+#         try:
+#             index = int(input("\nSelecione a interface de rede: "))
+#             interface = interfaces[index]
+#             ip = netifaces.ifaddresses(interface)[netifaces.AF_INET][0]['addr']
+#         except:
+#             print("\nInterface inválida ou indisponível!")
+#         else:
+#             return ip
 
 def init_server():
 

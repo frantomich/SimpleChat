@@ -22,7 +22,7 @@ def main():
 
     global CLIENT_IP, client_username
      
-    CLIENT_IP = get_ip()
+    #CLIENT_IP = get_ip()
 
     client_username = input("\nDigite o seu nome de usuário: ")
 
@@ -32,23 +32,23 @@ def main():
 
     exit(0)
 
-def get_ip():
+# def get_ip():
     
-        """Obtém o endereço IP do cliente a partir da interface de rede selecionada."""
-    
-        interfaces = netifaces.interfaces()
-        print("\nSelecione a interface de rede onde o cliente irá operar:\n")
-        for i, interface in enumerate(interfaces):
-            print(f"\t{i} - {interface}")
-        while True:
-            try:
-                index = int(input("\nSelecione a interface de rede: "))
-                interface = interfaces[index]
-                ip = netifaces.ifaddresses(interface)[netifaces.AF_INET][0]['addr']
-            except:
-                print("\nInterface inválida ou indisponível!")
-            else:
-                return ip
+#     """Obtém o endereço IP do cliente a partir da interface de rede selecionada."""
+
+#     interfaces = netifaces.interfaces()
+#     print("\nSelecione a interface de rede onde o cliente irá operar:\n")
+#     for i, interface in enumerate(interfaces):
+#         print(f"\t{i} - {interface}")
+#     while True:
+#         try:
+#             index = int(input("\nSelecione a interface de rede: "))
+#             interface = interfaces[index]
+#             ip = netifaces.ifaddresses(interface)[netifaces.AF_INET][0]['addr']
+#         except:
+#             print("\nInterface inválida ou indisponível!")
+#         else:
+#             return ip
 
 def connect_to_server():
 
@@ -136,43 +136,43 @@ def handle_guest(conn, addr):
 
 def receive_messages_from_server():
     
-        """Recebe mensagens do servidor."""
+    """Recebe mensagens do servidor."""
 
-        global client_connection, online_users
-    
-        while True:
-            try:
-                message = client_connection.recv(1024).decode('utf-8')
-                if message.startswith("<online_users>"):
-                    online_users = dict(eval(message.replace("<online_users>", "")))
-                    if len(online_users) > 0:
-                        print(f"Usuários online: {', '.join(online_users.keys())}\n")
-                    else:
-                        print("Nenhum outro usuário online!\n")
-                elif message.startswith("<offline>"):
-                    username = message.replace("<offline>", "")
-                    if username in online_connections:
-                        online_connections[username].close()
-                        del online_connections[username]
-                    print(f"Usuário(a) {username} desconectado(a)!\n")
+    global client_connection, online_users
+
+    while True:
+        try:
+            message = client_connection.recv(1024).decode('utf-8')
+            if message.startswith("<online_users>"):
+                online_users = dict(eval(message.replace("<online_users>", "")))
+                if len(online_users) > 0:
+                    print(f"Usuários online: {', '.join(online_users.keys())}\n")
                 else:
-                    print(message)
-            except:
-                break
+                    print("Nenhum outro usuário online!\n")
+            elif message.startswith("<offline>"):
+                username = message.replace("<offline>", "")
+                if username in online_connections:
+                    online_connections[username].close()
+                    del online_connections[username]
+                print(f"Usuário(a) {username} desconectado(a)!\n")
+            else:
+                print(message)
+        except:
+            break
 
 def receive_messages_from_guest(username):
         
-        global online_connections
-    
-        """Recebe mensagens de outros clientes."""
-    
-        while True:
-            try:
-                message = online_connections[username].recv(1024).decode('utf-8')
-                if message:
-                    print(f"<{username}>: {message}\n")
-            except:
-                break
+    global online_connections
+
+    """Recebe mensagens de outros clientes."""
+
+    while True:
+        try:
+            message = online_connections[username].recv(1024).decode('utf-8')
+            if message:
+                print(f"<{username}>: {message}\n")
+        except:
+            break
 
 def send_messages():
     
