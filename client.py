@@ -1,4 +1,5 @@
 import socket #Biblioteca para comunicação em rede.
+import netifaces #Biblioteca para obtenção de informações de interfaces de rede.
 import threading #Biblioteca para gerenciamento de threads.
 
 SERVER_IP = '127.0.0.1' #Endereço IP do servidor.
@@ -19,19 +20,35 @@ def main():
 
     """Função principal do cliente."""
 
-    global client_connection, receiver_connection, other_connection, online_connections
+    global CLIENT_IP, client_username
      
+    CLIENT_IP = get_ip()
+
+    client_username = input("\nDigite o seu nome de usuário: ")
+
     connect_to_server()
     threading.Thread(target=init_receiver, daemon=True).start()
     send_messages()
 
-    print("Desconectando...")
-    for conn in online_connections.values():
-        conn.close()
-    client_connection.close()
-    receiver_connection.close()
-
     exit(0)
+
+def get_ip():
+    
+        """Obtém o endereço IP do cliente a partir da interface de rede selecionada."""
+    
+        interfaces = netifaces.interfaces()
+        print("\nSelecione a interface de rede onde o cliente irá operar:\n")
+        for i, interface in enumerate(interfaces):
+            print(f"\t{i} - {interface}")
+        while True:
+            try:
+                index = int(input("\nSelecione a interface de rede: "))
+                interface = interfaces[index]
+                ip = netifaces.ifaddresses(interface)[netifaces.AF_INET][0]['addr']
+            except:
+                print("\nInterface inválida ou indisponível!")
+            else:
+                return ip
 
 def connect_to_server():
 
@@ -41,16 +58,15 @@ def connect_to_server():
 
     try:
         client_connection.connect((SERVER_IP, SERVER_PORT))
-        print(f"Conectado ao servidor {SERVER_IP}:{SERVER_PORT}")
-        client_username = input("Digite o seu nome de usuário: ")
+        print(f"\nConectado ao servidor {SERVER_IP}:{SERVER_PORT}\n")
         client_connection.send(f"<client>{client_username}:{CLIENT_IP}:{CLIENT_PORT}".encode('utf-8'))
         message = client_connection.recv(1024).decode('utf-8')
         if message.startswith("<pass>"):
-            print("Conexão estabelecida com sucesso!")
+            print("Conexão estabelecida com sucesso!\n")
         else:
             raise Exception
     except:
-        print("Não foi possível estabelecer conexão com o servidor!")
+        print("\nNão foi possível estabelecer conexão com o servidor!\n")
         client_connection.close()
         exit(0)
     else:
@@ -70,7 +86,7 @@ def connect_to_guest(username):
         message = guest.recv(1024).decode('utf-8')
         if message.startswith("<erro>"):
             return False
-        print(f"Usuário(a) {username} conectado(a)!")
+        print(f"\nUsuário(a) {username} conectado(a)!\n")
         online_connections[username] = guest
     except:
             guest.close()
@@ -88,9 +104,9 @@ def init_receiver():
     try:
         receiver_connection.bind((CLIENT_IP, CLIENT_PORT))
         receiver_connection.listen()
-        print(f"Recepção de usuários iniciada em {CLIENT_IP}:{CLIENT_PORT}")
+        print(f"Recepção de usuários iniciada em {CLIENT_IP}:{CLIENT_PORT}\n")
     except:
-        print("Não foi possível iniciar a recepção de usuários!")
+        print("Não foi possível iniciar a recepção de usuários!\n")
         receiver_connection.close()
         exit(0)
     else:
@@ -110,7 +126,7 @@ def handle_guest(conn, addr):
         if username in online_users:
             if online_users[username] == (ip, int(port)):
                 online_connections[username] = conn
-                print(f"Conexão recebida de {username} ¬> {addr[0]}:{addr[1]}")
+                print(f"Conexão recebida de {username} ¬> {addr[0]}:{addr[1]}\n")
                 conn.send("<pass>".encode('utf-8'))
                 threading.Thread(target=receive_messages_from_guest, args=(username,), daemon=True).start()
         else:
@@ -130,15 +146,15 @@ def receive_messages_from_server():
                 if message.startswith("<online_users>"):
                     online_users = dict(eval(message.replace("<online_users>", "")))
                     if len(online_users) > 0:
-                        print(f"Usuários online: {', '.join(online_users.keys())}")
+                        print(f"Usuários online: {', '.join(online_users.keys())}\n")
                     else:
-                        print("Nenhum outro usuário online!")
+                        print("Nenhum outro usuário online!\n")
                 elif message.startswith("<offline>"):
                     username = message.replace("<offline>", "")
                     if username in online_connections:
                         online_connections[username].close()
                         del online_connections[username]
-                    print(f"Usuário(a) {username} desconectado(a)!")
+                    print(f"Usuário(a) {username} desconectado(a)!\n")
                 else:
                     print(message)
             except:
@@ -162,7 +178,7 @@ def send_messages():
     
     """Envia mensagens para o servidor ou outros clientes."""
 
-    global client_connection, online_connections
+    global client_connection, receiver_connection, other_connection, online_connections
 
     while True:
         #message = input("¬> ")
@@ -170,6 +186,11 @@ def send_messages():
         if message.startswith("$"):
             client_connection.send(message.encode('utf-8'))
             if message.startswith("$exit"):
+                print("\nDesconectando...\n")
+                for conn in online_connections.values():
+                    conn.close()
+                client_connection.close()
+                receiver_connection.close()
                 break
         if message.startswith("@"):
             is_online = True
@@ -181,7 +202,7 @@ def send_messages():
             if is_online:
                 online_connections[username].send(message.encode('utf-8'))
             else:
-                print(f"Não foi possível conectar-se com o usuário {username}!")
+                print(f"\nNão foi possível conectar-se com o usuário {username}!\n")
 
 if __name__ == '__main__':
     main()
