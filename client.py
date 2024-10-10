@@ -1,6 +1,5 @@
 import socket #Biblioteca para comunicação em rede.
 import threading #Biblioteca para gerenciamento de threads.
-#import netifaces #Biblioteca para obtenção de informações de interfaces de rede.
 
 SERVER_IP = '127.0.0.1' #Endereço IP do servidor.
 SERVER_PORT = 2000 #Porta de comunicação do servidor.
@@ -20,9 +19,7 @@ def main():
 
     """Função principal do cliente."""
 
-    global CLIENT_IP, client_username
-     
-    #CLIENT_IP = get_ip()
+    global client_username
 
     client_username = input("\nDigite o seu nome de usuário: ")
 
@@ -31,24 +28,6 @@ def main():
     send_messages()
 
     exit(0)
-
-# def get_ip():
-    
-#     """Obtém o endereço IP do cliente a partir da interface de rede selecionada."""
-
-#     interfaces = netifaces.interfaces()
-#     print("\nSelecione a interface de rede onde o cliente irá operar:\n")
-#     for i, interface in enumerate(interfaces):
-#         print(f"\t{i} - {interface}")
-#     while True:
-#         try:
-#             index = int(input("\nSelecione a interface de rede: "))
-#             interface = interfaces[index]
-#             ip = netifaces.ifaddresses(interface)[netifaces.AF_INET][0]['addr']
-#         except:
-#             print("\nInterface inválida ou indisponível!")
-#         else:
-#             return ip
 
 def connect_to_server():
 

@@ -1,6 +1,5 @@
 import socket #Biblioteca para comunicação em rede.
 import threading #Biblioteca para gerenciamento de threads.
-#import netifaces #Biblioteca para obter informações de rede.
 
 SERVER_IP = '127.0.0.1' #Endereço IP padrão do servidor.
 SERVER_PORT = 2000 #Porta de comunicação padrão do servidor.
@@ -13,36 +12,14 @@ def main():
 
     """Função principal do servidor."""
 
-    #global SERVER_IP
-
-    #SERVER_IP = get_ip()
-
     srv = threading.Thread(target=init_server, daemon=True)
     srv.start()
 
     cmd = threading.Thread(target=prompt, daemon=True)
     cmd.start()
-
     cmd.join()
+
     exit(0)
-
-# def get_ip():
-    
-#     """Obtém o endereço IP do servidor a partir da interface de rede selecionada."""
-
-#     interfaces = netifaces.interfaces()
-#     print("\nSelecione a interface de rede onde o servidor irá operar:\n")
-#     for i, interface in enumerate(interfaces):
-#         print(f"\t{i} - {interface}")
-#     while True:
-#         try:
-#             index = int(input("\nSelecione a interface de rede: "))
-#             interface = interfaces[index]
-#             ip = netifaces.ifaddresses(interface)[netifaces.AF_INET][0]['addr']
-#         except:
-#             print("\nInterface inválida ou indisponível!")
-#         else:
-#             return ip
 
 def init_server():
 
