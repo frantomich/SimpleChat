@@ -133,7 +133,7 @@ def receive_messages_from_server():
                 if username in online_connections:
                     online_connections[username].close()
                     del online_connections[username]
-                print(f"Usuário(a) {username} desconectado(a)!\n")
+                    print(f"Usuário(a) {username} desconectado(a)!\n")
             else:
                 print(message)
         except:
@@ -171,7 +171,7 @@ def send_messages():
                 client_connection.close()
                 receiver_connection.close()
                 break
-        if message.startswith("@"):
+        elif message.startswith("@"):
             is_online = True
             message = message.replace("@", "")
             username = message.split()[0]
